@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0056b3">
+    <title>Muungano Family CBOs - Portal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0056b3; --primary-dark: #003d80; --primary-light: #e8f0fe;
+            --accent: #d81b60; --accent-light: #fce4ec;
+            --dark: #1a2332; --text: #374151; --text-light: #6b7280;
+            --bg: #f0f2f5; --white: #ffffff;
+            --success: #059669; --success-light: #d1fae5;
+            --danger: #dc2626; --danger-light: #fee2e2;
+            --warning: #d97706; --warning-light: #fef3c7;
+            --border: #e5e7eb; --shadow: 0 1px 3px rgba(0,0,0,0.07);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08); --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+            --radius: 12px; --radius-sm: 8px;
+            --sidebar-w: 260px; --bottomnav-h: 64px;
+        }
+        *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+
+        @media(max-width:767px){
+            .sidebar{transform:translateX(-100%);}
+            .sidebar.open{transform:translateX(0);}
+            .main-content{margin-left:0!important;padding:16px!important;padding-top:60px!important;padding-bottom:calc(var(--bottomnav-h) + 20px)!important;}
+            .top-bar{display:flex!important;}
+            .bottom-nav{display:flex!important;}
+            .grid-2{grid-template-columns:1fr!important;}
+            .grid-3{grid-template-columns:1fr!important;}
+            .grid-4{grid-template-columns:1fr 1fr!important;}
+            .page-header{flex-direction:column;align-items:flex-start!important;gap:12px;}
+            .page-header .header-actions{width:100%;}
+            .page-header .header-actions .btn{flex:1;text-align:center;font-size:.85rem;padding:10px 12px;}
+            .card{padding:16px!important;}
+            .modal-content{width:95%!important;max-height:85vh;margin:10px;}
+            .table-scroll{margin:0 -16px;}
+            table{font-size:.8rem;}
+            th,td{padding:10px 10px!important;}
+            .stat-card h3{font-size:1.4rem!important;}
+            .hide-mobile{display:none!important;}
+            .ledger-summary-table{font-size:.7rem!important;}
+            .ledger-summary-table th,.ledger-summary-table td{padding:8px 6px!important;}
+        }
+        @media(min-width:768px){.bottom-nav{display:none!important;}.top-bar{display:none!important;}}
+        @media(min-width:1024px){.grid-3{grid-template-columns:repeat(3,1fr)!important;}.grid-4{grid-template-columns:repeat(4,1fr)!important;}}
+
+        .top-bar{display:none;position:fixed;top:0;left:0;width:100%;background:var(--white);padding:12px 16px;z-index:90;border-bottom:1px solid var(--border);align-items:center;justify-content:space-between;box-shadow:var(--shadow);}
+        .top-bar-left{display:flex;align-items:center;gap:12px;}
+        .hamburger{font-size:1.3rem;cursor:pointer;color:var(--primary);padding:8px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:none;border:none;}
+        .hamburger:active{background:var(--primary-light);}
+        .top-bar-title{font-weight:700;color:var(--primary);font-size:1rem;}
+
+        .bottom-nav{display:none;position:fixed;bottom:0;left:0;width:100%;background:var(--white);height:var(--bottomnav-h);z-index:90;border-top:1px solid var(--border);box-shadow:0 -2px 10px rgba(0,0,0,0.06);align-items:center;justify-content:space-around;padding:0 4px;}
+        .bottom-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:var(--text-light);padding:6px 4px;min-width:56px;border-radius:8px;transition:.2s;border:none;background:none;font-size:.65rem;font-weight:500;font-family:inherit;}
+        .bottom-nav-item i{font-size:1.2rem;}
+        .bottom-nav-item.active{color:var(--primary);}
+        .bottom-nav-item:active{background:var(--primary-light);}
+
+        .auth-container{min-height:100vh;min-height:100dvh;display:flex;justify-content:center;align-items:center;background:linear-gradient(160deg,#003d80 0%,#0056b3 40%,#1565c0 100%);padding:20px;position:relative;overflow:hidden;}
+        .auth-container::before{content:'';position:absolute;width:300px;height:300px;background:rgba(216,27,96,0.15);border-radius:50%;top:-80px;right:-80px;}
+        .auth-container::after{content:'';position:absolute;width:200px;height:200px;background:rgba(255,255,255,0.05);border-radius:50%;bottom:-60px;left:-60px;}
+        .auth-card{background:var(--white);padding:32px 28px;border-radius:20px;box-shadow:var(--shadow-lg);width:100%;max-width:420px;text-align:center;position:relative;z-index:1;border-top:4px solid var(--accent);}
+        .auth-logo{width:100px;height:100px;margin-bottom:8px;object-fit:contain;border-radius:16px;}
+        .auth-title{font-size:1.3rem;color:var(--primary);font-weight:800;letter-spacing:-.02em;}
+        .auth-subtitle{font-size:.78rem;color:var(--text-light);margin-top:2px;font-weight:500;}
+
+        .tabs{display:flex;margin:24px 0 20px;border-bottom:2px solid var(--border);}
+        .tab-btn{flex:1;padding:12px;cursor:pointer;background:none;border:none;font-weight:600;font-size:.95rem;color:var(--text-light);transition:.2s;position:relative;font-family:inherit;min-height:44px;}
+        .tab-btn.active{color:var(--primary);}
+        .tab-btn.active::after{content:'';position:absolute;bottom:-2px;left:20%;width:60%;height:3px;background:var(--accent);border-radius:3px;}
+
+        .form-group{margin-bottom:14px;text-align:left;}
+        .form-label{display:block;font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:5px;}
+        .form-control{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:1rem;font-family:inherit;transition:.2s;background:var(--white);color:var(--dark);min-height:48px;-webkit-appearance:none;font-weight:500;}
+        .form-control:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(0,86,179,0.12);}
+        textarea.form-control{min-height:100px;resize:vertical;}
+        select.form-control{cursor:pointer;font-weight:600;}
+
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 24px;border:none;border-radius:var(--radius-sm);cursor:pointer;font-weight:700;font-size:.95rem;font-family:inherit;transition:.2s;text-decoration:none;min-height:48px;-webkit-tap-highlight-color:transparent;}
+        .btn:active{transform:scale(0.97);}
+        .btn-primary{background:var(--primary);color:var(--white);}
+        .btn-primary:hover{background:var(--primary-dark);}
+        .btn-accent{background:var(--accent);color:var(--white);}
+        .btn-success{background:var(--success);color:var(--white);}
+        .btn-danger{background:var(--danger);color:var(--white);}
+        .btn-warning{background:var(--warning);color:var(--white);}
+        .btn-outline{background:var(--white);border:2px solid var(--primary);color:var(--primary);}
+        .btn-sm{padding:8px 14px;font-size:.78rem;min-height:36px;border-radius:6px;}
+        .btn-block{width:100%;}
+        .btn-group{display:flex;gap:8px;flex-wrap:wrap;}
+
+        .spinner{width:20px;height:20px;border:2.5px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:none;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        .loading .spinner{display:inline-block;}
+        .loading .btn-text{display:none;}
+
+        .app{display:flex;min-height:100vh;min-height:100dvh;}
+        .sidebar{width:var(--sidebar-w);background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100%;height:100dvh;z-index:100;transition:transform .3s ease;box-shadow:var(--shadow-md);overflow-y:auto;}
+        .sidebar-header{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#f8faff 0%,#eef2ff 100%);}
+        .sidebar-logo{width:44px;height:44px;object-fit:contain;border-radius:10px;}
+        .sidebar-brand{font-weight:800;color:var(--primary);font-size:1rem;line-height:1.2;}
+        .sidebar-brand small{display:block;font-weight:500;font-size:.68rem;color:var(--text-light);}
+        .nav-menu{flex:1;padding:12px 0;overflow-y:auto;}
+        .nav-label{font-size:.68rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.05em;padding:16px 20px 6px;}
+        .nav-item{display:flex;align-items:center;padding:12px 20px;color:var(--text);text-decoration:none;cursor:pointer;transition:.15s;margin:1px 8px;border-radius:var(--radius-sm);font-size:.88rem;font-weight:500;gap:12px;min-height:44px;border:none;background:none;width:calc(100% - 16px);font-family:inherit;text-align:left;}
+        .nav-item i{width:20px;text-align:center;font-size:1rem;}
+        .nav-item:hover{background:var(--primary-light);color:var(--primary);}
+        .nav-item.active{background:var(--primary-light);color:var(--primary);font-weight:700;}
+        .sidebar-footer{padding:16px 20px;border-top:1px solid var(--border);background:#fafbff;}
+        .sidebar-user-name{font-weight:700;font-size:.9rem;color:var(--dark);}
+        .sidebar-user-role{font-size:.75rem;color:var(--text-light);}
+        .logout-btn{background:none;border:none;color:var(--danger);cursor:pointer;font-size:.85rem;margin-top:10px;display:flex;align-items:center;gap:8px;font-weight:600;font-family:inherit;padding:8px 0;min-height:44px;}
+        .sidebar-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:99;}
+        .sidebar-overlay.show{display:block;}
+        .main-content{flex:1;margin-left:var(--sidebar-w);padding:28px;overflow-y:auto;background:var(--bg);min-height:100vh;min-height:100dvh;}
+
+        .page-header{margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;}
+        .page-title{font-size:1.6rem;color:var(--dark);font-weight:800;letter-spacing:-.02em;}
+        .page-subtitle{font-size:.88rem;color:var(--text-light);margin-top:2px;}
+        .card{background:var(--white);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--border);}
+        .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+        .card-title{font-size:1rem;font-weight:700;color:var(--dark);}
+        .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+        .grid-3{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+        .grid-4{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+        .stat-card{display:flex;justify-content:space-between;align-items:center;padding:20px!important;}
+        .stat-card h3{font-size:1.6rem;font-weight:800;color:var(--dark);line-height:1;}
+        .stat-card p{font-size:.8rem;color:var(--text-light);font-weight:500;margin-top:4px;}
+        .stat-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:1.3rem;flex-shrink:0;}
+
+        .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius-sm);border:1px solid var(--border);}
+        table{width:100%;border-collapse:collapse;min-width:550px;}
+        th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);}
+        th{background:#f9fafb;font-weight:700;font-size:.75rem;color:var(--text-light);text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;}
+        td{font-size:.88rem;vertical-align:middle;}
+        tr:last-child td{border-bottom:none;}
+        tr:active{background:#f9fafb;}
+        .bold-data td{font-weight:700!important;color:var(--dark)!important;}
+        .bold-data th{font-weight:800!important;color:var(--primary)!important;}
+        .password-cell{font-family:'Courier New',monospace;background:#f3f4f6;padding:3px 8px;border-radius:4px;font-size:.82rem;display:inline-block;user-select:all;}
+
+        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center;z-index:1000;padding:16px;}
+        .modal-overlay.show{display:flex;}
+        .modal-content{background:var(--white);padding:24px;border-radius:16px;width:100%;max-width:560px;position:relative;animation:modalIn .25s ease;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+        @keyframes modalIn{from{transform:translateY(20px) scale(.97);opacity:0;}to{transform:none;opacity:1;}}
+        .modal-close{position:absolute;top:12px;right:16px;cursor:pointer;font-size:1.4rem;color:var(--text-light);background:none;border:none;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:8px;}
+        .modal-close:active{background:var(--bg);}
+        .modal-title{font-size:1.15rem;font-weight:700;color:var(--dark);margin-bottom:20px;padding-right:30px;}
+
+        .alert-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);display:none;justify-content:center;align-items:center;z-index:2000;padding:20px;}
+        .alert-overlay.show{display:flex;}
+        .alert-box{background:var(--white);padding:24px;border-radius:16px;width:100%;max-width:400px;box-shadow:var(--shadow-lg);}
+        .alert-title{font-size:1.1rem;font-weight:700;color:var(--primary);margin-bottom:8px;}
+        .alert-msg{font-size:.92rem;color:var(--text);margin-bottom:20px;line-height:1.6;word-break:break-word;white-space:pre-wrap;}
+
+        .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:var(--white);padding:12px 24px;border-radius:10px;font-size:.88rem;font-weight:500;box-shadow:var(--shadow-lg);z-index:3000;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;max-width:90%;}
+        .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+        .toast.success{background:var(--success);}
+        .toast.error{background:var(--danger);}
+        .chart-wrap{position:relative;height:300px;width:100%;}
+
+        .finance-item{padding:14px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+        .finance-item:last-child{border-bottom:none;}
+        .finance-item-desc{font-weight:700;font-size:.9rem;}
+        .finance-item-meta{font-size:.75rem;color:var(--text-light);}
+        .finance-item-amount{font-weight:800;font-size:.95rem;white-space:nowrap;}
+        .empty-state{text-align:center;padding:40px 20px;color:var(--text-light);}
+        .empty-state i{font-size:2.5rem;margin-bottom:12px;opacity:.3;display:block;}
+        .hidden{display:none!important;}
+
+        .portfolio-hero{text-align:center;padding:40px 20px;border-bottom:3px solid var(--accent);}
+        .portfolio-logo{width:120px;height:120px;margin-bottom:16px;border-radius:50%;object-fit:contain;box-shadow:var(--shadow-md);}
+        .portfolio-name{font-size:1.5rem;font-weight:800;color:var(--primary);}
+        .portfolio-motto{font-style:italic;color:var(--accent);font-weight:600;margin:8px 0 16px;}
+        .portfolio-desc{max-width:550px;margin:0 auto;color:var(--text);font-size:.92rem;}
+        .mv-card{padding:20px!important;border-top:3px solid var(--primary);}
+        .mv-card.vision{border-top-color:var(--accent);}
+        .mv-card h4{font-size:1rem;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+        .mv-card p{font-size:.88rem;color:var(--text);line-height:1.7;}
+
+        .calc-result{font-size:1.2rem;font-weight:800;padding:16px;border-radius:var(--radius-sm);text-align:center;margin-top:16px;transition:.3s;}
+        .calc-result.positive{background:var(--success-light);color:var(--success);}
+        .calc-result.negative{background:var(--danger-light);color:var(--danger);}
+        .calc-result.neutral{background:var(--bg);color:var(--text-light);}
+
+        .ledger-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:16px;gap:0;overflow-x:auto;}
+        .ledger-tab{padding:10px 18px;background:none;border:none;font-weight:600;cursor:pointer;color:var(--text-light);border-bottom:3px solid transparent;margin-bottom:-2px;font-family:inherit;font-size:.88rem;white-space:nowrap;min-height:44px;}
+        .ledger-tab.active{color:var(--primary);border-bottom-color:var(--accent);font-weight:700;}
+        .ledger-tab:active{background:var(--primary-light);}
+        .ledger-summary-table th{background:var(--primary)!important;color:var(--white)!important;font-size:.78rem!important;}
+        .ledger-summary-table td{font-weight:700!important;}
+        .ledger-summary-table tr:last-child td{background:#f0f4ff!important;font-weight:800!important;}
+        .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700;}
+        .badge-yes{background:var(--success-light);color:var(--success);}
+        .badge-no{background:var(--danger-light);color:var(--danger);}
+        .filter-bar{padding:14px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+        .filter-bar label{font-weight:700;white-space:nowrap;font-size:.88rem;}
+        .filter-bar .form-control{width:auto;min-width:140px;}
+        .section-badge{display:inline-block;background:var(--accent);color:var(--white);font-size:.7rem;font-weight:700;padding:2px 10px;border-radius:20px;margin-left:8px;vertical-align:middle;}
+    </style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+<div id="alertOverlay" class="alert-overlay" onclick="closeAlert()">
+    <div class="alert-box" onclick="event.stopPropagation()">
+        <div class="alert-title" id="alertTitle">Notice</div>
+        <div class="alert-msg" id="alertMsg"></div>
+        <button class="btn btn-primary btn-block" onclick="closeAlert()">Close</button>
+    </div>
+</div>
+
+<!-- ==================== AUTH ==================== -->
+<div id="authView" class="auth-container">
+    <div class="auth-card">
+        <img src="https://z-cdn-media.chatglm.cn/files/561e3938-cf2f-4749-aaf6-0f5f2e36a457.png?auth_key=1872441690-de0c549198c24429a7fe71a8d3ee875b-0-228b9af57e5b2550f844d413ad92af54" alt="Logo" class="auth-logo" onerror="this.src='https://placehold.co/100x100/0056b3/ffffff?text=MF'">
+        <div class="auth-title">MUUNGANO FAMILY</div>
+        <div class="auth-subtitle">BETTER FOR CHANGE LIFE</div>
+        <div class="tabs">
+            <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">Login</button>
+            <button class="tab-btn" id="tabSignup" onclick="switchTab('signup')">Sign Up</button>
+        </div>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group"><label class="form-label">Email Address</label><input type="email" id="loginEmail" class="form-control" placeholder="you@example.com" required autocomplete="email"></div>
+            <div class="form-group"><label class="form-label">Password</label><input type="password" id="loginPass" class="form-control" placeholder="Enter password" required autocomplete="current-password"></div>
+            <div id="loginError" style="color:var(--danger);font-size:.85rem;margin-bottom:12px;display:none;"></div>
+            <button type="submit" class="btn btn-primary btn-block" id="loginBtn"><span class="btn-text">Sign In</span><span class="spinner"></span></button>
+        </form>
+        <form id="signupForm" class="hidden" onsubmit="handleSignup(event)">
+            <div class="form-group"><label class="form-label">Full Name</label><input type="text" id="signupName" class="form-control" placeholder="John Doe" required></div>
+            <div class="form-group"><label class="form-label">Email Address</label><input type="email" id="signupEmail" class="form-control" placeholder="you@example.com" required autocomplete="email"></div>
+            <div class="form-group"><label class="form-label">Password</label><input type="password" id="signupPass" class="form-control" placeholder="Min 4 characters" required minlength="4" autocomplete="new-password"></div>
+            <div class="form-group"><label class="form-label">Role</label>
+                <select id="signupRole" class="form-control" required>
+                    <option value="" disabled selected>Select Role</option>
+                    <option value="CEO">CEO (Admin)</option>
+                    <option value="Deputy Director">Deputy Director</option>
+                    <option value="Secretary">Secretary</option>
+                    <option value="Finance Officer">Finance Officer</option>
+                    <option value="Coordination Team">Coordination Team</option>
+                </select>
+            </div>
+            <div id="signupError" style="color:var(--danger);font-size:.85rem;margin-bottom:12px;display:none;"></div>
+            <button type="submit" class="btn btn-accent btn-block" id="signupBtn"><span class="btn-text">Create Account</span><span class="spinner"></span></button>
+        </form>
+    </div>
+</div>
+
+<!-- ==================== APP ==================== -->
+<div id="appView" class="app hidden">
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <span class="top-bar-title">Muungano Portal</span>
+        </div>
+        <button class="hamburger" onclick="handleLogout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="https://z-cdn-media.chatglm.cn/files/561e3938-cf2f-4749-aaf6-0f5f2e36a457.png?auth_key=1872441690-de0c549198c24429a7fe71a8d3ee875b-0-228b9af57e5b2550f844d413ad92af54" alt="Logo" class="sidebar-logo" onerror="this.src='https://placehold.co/44x44/0056b3/ffffff?text=MF'">
+            <div class="sidebar-brand">Muungano Family<small>CBOs Portal</small></div>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-label">Main</div>
+            <button class="nav-item active" data-section="dashboard"><i class="fas fa-th-large"></i> Dashboard</button>
+            <button class="nav-item" data-section="portfolio"><i class="fas fa-building"></i> Portfolio</button>
+            <button class="nav-item" data-section="reports"><i class="fas fa-file-alt"></i> Reports</button>
+            <div class="nav-label">Records</div>
+            <button class="nav-item" data-section="beneficiaries"><i class="fas fa-users"></i> Beneficiaries</button>
+            <button class="nav-item finance-only" data-section="amounts"><i class="fas fa-coins"></i> Amounts Received</button>
+            <div class="nav-label secretary-only">Secretary</div>
+            <button class="nav-item secretary-only" data-section="participation"><i class="fas fa-clipboard-check"></i> Participation List</button>
+            <div class="nav-label finance-only">Finance Officer</div>
+            <button class="nav-item finance-only" data-section="visits"><i class="fas fa-handshake"></i> Member Visits</button>
+            <button class="nav-item finance-only" data-section="ledger"><i class="fas fa-book-open"></i> Project Ledger</button>
+            <div class="nav-label">Management</div>
+            <button class="nav-item" data-section="finance"><i class="fas fa-chart-pie"></i> Finances</button>
+            <button class="nav-item" data-section="calculator"><i class="fas fa-calculator"></i> Budget Planner</button>
+            <div class="nav-label">System</div>
+            <button class="nav-item admin-only" data-section="admin"><i class="fas fa-user-shield"></i> Admin Panel</button>
+        </div>
+        <div class="sidebar-footer">
+            <div class="sidebar-user-name" id="dispName">User</div>
+            <div class="sidebar-user-role" id="dispRole">Role</div>
+            <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </nav>
+
+    <main class="main-content" style="padding-top:20px;">
+
+        <!-- DASHBOARD -->
+        <section id="sec-dashboard">
+            <div class="page-header"><div><h1 class="page-title">Dashboard</h1><p class="page-subtitle">Overview of your organization</p></div></div>
+            <div class="grid-4" id="statsGrid">
+                <div class="card stat-card"><div><h3 id="statReports">-</h3><p>Reports</p></div><div class="stat-icon" style="background:var(--primary)"><i class="fas fa-file-alt"></i></div></div>
+                <div class="card stat-card"><div><h3 id="statBeneficiaries">-</h3><p>Beneficiaries</p></div><div class="stat-icon" style="background:var(--accent)"><i class="fas fa-users"></i></div></div>
+                <div class="card stat-card"><div><h3 id="statIncome">KSH -</h3><p>Income</p></div><div class="stat-icon" style="background:var(--success)"><i class="fas fa-arrow-down"></i></div></div>
+                <div class="card stat-card"><div><h3 id="statExpense">KSH -</h3><p>Expenses</p></div><div class="stat-icon" style="background:var(--danger)"><i class="fas fa-arrow-up"></i></div></div>
+            </div>
+            <div class="card"><div class="card-header"><span class="card-title">Financial Overview (KSH)</span></div><div class="chart-wrap"><canvas id="mainChart"></canvas></div></div>
+        </section>
+
+        <!-- PORTFOLIO -->
+        <section id="sec-portfolio" class="hidden">
+            <div class="page-header"><h1 class="page-title">Organization Portfolio</h1></div>
+            <div class="card portfolio-hero">
+                <img src="https://z-cdn-media.chatglm.cn/files/561e3938-cf2f-4749-aaf6-0f5f2e36a457.png?auth_key=1872441690-de0c549198c24429a7fe71a8d3ee875b-0-228b9af57e5b2550f844d413ad92af54" class="portfolio-logo" alt="Logo" onerror="this.src='https://placehold.co/120x120/0056b3/ffffff?text=MF'">
+                <div class="portfolio-name">MUUNGANO FAMILY CBOs</div>
+                <div class="portfolio-motto">"Better for Change Life"</div>
+                <div class="portfolio-desc">Dedicated to fostering family values, community development, and improving livelihoods through sustainable programs and partnerships.</div>
+            </div>
+            <div class="grid-2">
+                <div class="card mv-card"><h4 style="color:var(--primary)"><i class="fas fa-bullseye"></i> Mission</h4><p>To bring together families and communities for sustainable development and social well-being. We empower individuals through capacity building, resource mobilization, and advocacy to create a cohesive and thriving society.</p></div>
+                <div class="card mv-card vision"><h4 style="color:var(--accent)"><i class="fas fa-eye"></i> Vision</h4><p>A united, healthy, and self-reliant community where every family has access to basic needs, quality education, and the opportunity to lead a dignified and better life.</p></div>
+            </div>
+        </section>
+
+        <!-- REPORTS -->
+        <section id="sec-reports" class="hidden">
+            <div class="page-header">
+                <div><h1 class="page-title">Reports</h1></div>
+                <div class="header-actions btn-group">
+                    <button class="btn btn-outline" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> <span class="hide-mobile">PDF</span></button>
+                    <button class="btn btn-primary" onclick="openModal('reportModal')"><i class="fas fa-plus"></i> <span class="hide-mobile">New</span></button>
+                </div>
+            </div>
+            <div class="card"><div class="table-scroll"><table><thead><tr><th>Title</th><th>Author</th><th>Date</th><th class="hide-mobile">Actions</th></tr></thead><tbody id="reportsBody"></tbody></table></div></div>
+        </section>
+
+        <!-- BENEFICIARIES -->
+        <section id="sec-beneficiaries" class="hidden">
+            <div class="page-header">
+                <div><h1 class="page-title">Beneficiaries</h1></div>
+                <div class="header-actions"><button class="btn btn-primary" onclick="openBeneficiaryModal()"><i class="fas fa-plus"></i> <span class="hide-mobile">Add</span></button></div>
+            </div>
+            <div class="card"><div class="table-scroll"><table><thead><tr><th>ID</th><th>Name</th><th>Nationality</th><th>Age</th><th class="hide-mobile">Phone</th><th class="hide-mobile">Location</th><th class="hide-mobile">Items</th><th>Actions</th></tr></thead><tbody id="benBody"></tbody></table></div></div>
+        </section>
+
+        <!-- AMOUNTS RECEIVED -->
+        <section id="sec-amounts" class="hidden">
+            <div class="page-header">
+                <div><h1 class="page-title">Amounts Received</h1><p class="page-subtitle">All funds received from January to December</p></div>
+                <div class="header-actions"><button class="btn btn-success" onclick="openModal('amountModal')"><i class="fas fa-plus"></i> <span class="hide-mobile">Add</span></button></div>
+            </div>
+            <div class="card filter-bar" style="margin-bottom:0;border-bottom:none;">
+                <label>Month:</label>
+                <select id="amountMonthFilter" class="form-control" onchange="renderAmounts()">
+                    <option value="All">All Year</option>
+                    <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+                    <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+                    <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+                    <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                </select>
+            </div>
+            <div class="card"><div class="table-scroll"><table class="bold-data"><thead><tr><th>Date</th><th>Day</th><th>Source / Description</th><th>Amount (KSH)</th><th>Received By</th><th>Actions</th></tr></thead><tbody id="amountsBody"></tbody></table></div></div>
+        </section>
+
+        <!-- PARTICIPATION LIST -->
+        <section id="sec-participation" class="hidden">
+            <div class="page-header">
+                <div><h1 class="page-title">Participation List</h1><p class="page-subtitle">Activity member participation records</p></div>
+                <div class="header-actions"><button class="btn btn-primary" onclick="openParticipationModal()"><i class="fas fa-plus"></i> <span class="hide-mobile">Add</span></button></div>
+            </div>
+            <div class="card"><div class="table-scroll"><table class="bold-data"><thead><tr><th>ID</th><th>Full Name</th><th>Nationality</th><th>Sex</th><th>Age</th><th class="hide-mobile">Location</th><th class="hide-mobile">Phone</th><th>Active</th><th class="hide-mobile">Online</th><th>Actions</th></tr></thead><tbody id="partBody"></tbody></table></div></div>
+        </section>
+
+        <!-- MEMBER VISITS -->
+        <section id="sec-visits" class="hidden">
+            <div class="page-header">
+                <div><h1 class="page-title">Member Visits</h1><p class="page-subtitle">Record of member visitation activities</p></div>
+                <div class="header-actions"><button class="btn btn-primary" onclick="openModal('visitModal')"><i class="fas fa-plus"></i> <span class="hide-mobile">Add</span></button></div>
+            </div>
+            <div class="card"><div class="table-scroll"><table class="bold-data"><thead><tr><th>ID</th><th>Full Name</th><th>Purpose of Visit</th><th>Amount Given (KSH)</th><th class="hide-mobile">Items Given</th><th class="hide-mobile">Next Visit For</th><th>Actions</th></tr></thead><tbody id="visitsBody"></tbody></table></div></div>
+        </section>
+
+        <!-- PROJECT LEDGER -->
+        <section id="sec-ledger" class="hidden">
+            <div class="page-header">
+                <div><h1 class="page-title">Project Ledger</h1><p class="page-subtitle">Complete financial records from project start to end</p></div>
+                <div class="header-actions"><button class="btn btn-primary" onclick="openLedgerModal()"><i class="fas fa-plus"></i> <span class="hide-mobile">Add Entry</span></button></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="card-title"><i class="fas fa-table" style="color:var(--primary);margin-right:6px;"></i> Monthly Summary</span></div>
+                <div class="table-scroll"><table class="ledger-summary-table"><thead><tr><th>Month</th><th>Amount In (KSH)</th><th>Amount Out (KSH)</th><th>Salaries (KSH)</th><th>Balance (KSH)</th></tr></thead><tbody id="ledgerSummaryBody"></tbody></table></div>
+            </div>
+            <div class="card">
+                <div class="ledger-tabs">
+                    <button class="ledger-tab active" onclick="switchLedgerTab('in',this)"><i class="fas fa-arrow-down" style="color:var(--success);"></i> Amount In</button>
+                    <button class="ledger-tab" onclick="switchLedgerTab('out',this)"><i class="fas fa-arrow-up" style="color:var(--danger);"></i> Amount Out</button>
+                    <button class="ledger-tab" onclick="switchLedgerTab('salary',this)"><i class="fas fa-wallet" style="color:var(--warning);"></i> Salaries</button>
+                </div>
+                <div id="ledgerTableWrap"><div class="table-scroll"><table><thead id="ledgerThead"></thead><tbody id="ledgerTbody"></tbody></table></div></div>
+            </div>
+        </section>
+
+        <!-- FINANCE -->
+        <section id="sec-finance" class="hidden">
+            <div class="page-header"><h1 class="page-title">Finances</h1></div>
+            <div class="card filter-bar" style="margin-bottom:0;border-bottom:none;">
+                <label>Month:</label>
+                <select id="monthFilter" class="form-control" onchange="renderFinances()">
+                    <option value="All">All Year</option>
+                    <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+                    <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+                    <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+                    <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                </select>
+            </div>
+            <div class="grid-3">
+                <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-clipboard-list" style="color:var(--primary);margin-right:6px;"></i>Budget</span><button class="btn btn-sm btn-primary" onclick="openModal('budgetModal')">Add</button></div><div id="budgetList"></div></div>
+                <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-hand-holding-usd" style="color:var(--success);margin-right:6px;"></i>Income</span><button class="btn btn-sm btn-success" onclick="openModal('incomeModal')">Add</button></div><div id="incomeList"></div></div>
+                <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-money-bill-wave" style="color:var(--danger);margin-right:6px;"></i>Expenses</span><button class="btn btn-sm btn-danger" onclick="openModal('expenseModal')">Add</button></div><div id="expenseList"></div></div>
+            </div>
+        </section>
+
+        <!-- CALCULATOR -->
+        <section id="sec-calculator" class="hidden">
+            <div class="page-header"><h1 class="page-title">Budget Planner</h1></div>
+            <div class="card">
+                <div class="card-title" style="margin-bottom:16px;">Project Your Balance</div>
+                <div class="grid-2">
+                    <div class="form-group"><label class="form-label">Expected Income (KSH)</label><input type="number" id="calcIncome" class="form-control" placeholder="0" oninput="calcBudget()"></div>
+                    <div class="form-group"><label class="form-label">Expected Expenses (KSH)</label><input type="number" id="calcExpense" class="form-control" placeholder="0" oninput="calcBudget()"></div>
+                </div>
+                <div id="calcResult" class="calc-result neutral">Enter values to calculate</div>
+            </div>
+        </section>
+
+        <!-- ADMIN -->
+        <section id="sec-admin" class="hidden">
+            <div class="page-header"><h1 class="page-title">Admin Panel</h1></div>
+            <div class="card">
+                <div class="card-header"><span class="card-title">Team Members</span></div>
+                <p style="font-size:.82rem;color:var(--text-light);margin-bottom:12px;"><i class="fas fa-info-circle"></i> Passwords are visible to assist with login issues.</p>
+                <div class="table-scroll"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Password</th><th>Action</th></tr></thead><tbody id="usersBody"></tbody></table></div>
+            </div>
+        </section>
+    </main>
+
+    <div class="bottom-nav">
+        <button class="bottom-nav-item active" data-section="dashboard"><i class="fas fa-th-large"></i>Home</button>
+        <button class="bottom-nav-item" data-section="reports"><i class="fas fa-file-alt"></i>Reports</button>
+        <button class="bottom-nav-item" data-section="finance"><i class="fas fa-chart-pie"></i>Finance</button>
+        <button class="bottom-nav-item" data-section="beneficiaries"><i class="fas fa-users"></i>People</button>
+        <button class="bottom-nav-item" onclick="toggleSidebar()"><i class="fas fa-ellipsis-h"></i>More</button>
+    </div>
+</div>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- Report Modal -->
+<div id="reportModal" class="modal-overlay" onclick="if(event.target===this)closeModal('reportModal')">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('reportModal')"><i class="fas fa-times"></i></button>
+        <div class="modal-title">New Report</div>
+        <div class="form-group"><label class="form-label">Title</label><input type="text" id="rptTitle" class="form-control" placeholder="Report title"></div>
+        <div class="form-group"><label class="form-label">Content</label><textarea id="rptContent" class="form-control" placeholder="Write your report here..."></textarea></div>
+        <button class="btn btn-primary btn-block" id="saveRptBtn" onclick="saveReport()"><span class="btn-text">Save Report</span><span class="spinner"></span></button>
+    </div>
+</div>
+
+<!-- Budget Modal -->
+<div id="budgetModal" class="modal-overlay" onclick="if(event.target===this)closeModal('budgetModal')">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('budgetModal')"><i class="fas fa-times"></i></button>
+        <div class="modal-title">Add Budget Item</div>
+        <div class="form-group"><label class="form-label">Description</label><input type="text" id="bgtDesc" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Amount (KSH)</label><input type="number" id="bgtAmt" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Month</label><select id="bgtMonth" class="form-control"><option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option><option value="3">Apr</option><option value="4">May</option><option value="5">Jun</option><option value="6">Jul</option><option value="7">Aug</option><option value="8">Sep</option><option value="9">Oct</option><option value="10">Nov</option><option value="11">Dec</option></select></div>
+        <button class="btn btn-primary btn-block" onclick="saveFinance('budget')"><span class="btn-text">Save</span><span class="spinner"></span></button>
+    </div>
+</div>
+
+<!-- Income Modal -->
+<div id="incomeModal" class="modal-overlay" onclick="if(event.target===this)closeModal('incomeModal')">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('incomeModal')"><i class="fas fa-times"></i></button>
+        <div class="modal-title">Record Income</div>
+        <div class="form-group"><label class="form-label">Source</label><input type="text" id="incDesc" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Amount (KSH)</label><input type="number" id="incAmt" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Month</label><select id="incMonth" class="form-control"><option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option><option value="3">Apr</option><option value="4">May</option><option value="5">Jun</option><option value="6">Jul</option><option value="7">Aug</option><option value="8">Sep</option><option value="9">Oct</option><option value="10">Nov</option><option value="11">Dec</option></select></div>
+        <button class="btn btn-success btn-block" onclick="saveFinance('income')"><span class="btn-text">Save</span><span class="spinner"></span></button>
+    </div>
+</div>
+
+<!-- Expense Modal -->
+<div id="expenseModal" class="modal-overlay" onclick="if(event.target===this)closeModal('expenseModal')">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('expenseModal')"><i class="fas fa-times"></i></button>
+        <div class="modal-title">Record Expense</div>
+        <div class="form-group"><label class="form-label">Description</label><input type="text" id="expDesc" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Amount (KSH)</label><input type="number" id="expAmt" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Month</label><select id="expMonth" class="form-control"><option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option><option value="3">Apr</option><option value="4">May</option><option value="5">Jun</option><option value="6">Jul</option><option value="7">Aug</option><option value="8">Sep</option><option value="9">Oct</option><option value="10">Nov</option><option value="11">Dec</option></select></div>
+        <button class="btn btn-danger btn-block" onclick="saveFinance('expense')"><span class="btn-text">Save</span><span class="spinner"></span></button>
+    </div>
+</div>
+
+<!-- Beneficiary Modal -->
+<div id="benModal" class="modal-overlay" onclick="if(event.target===this)closeModal('benModal')">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('benModal')"><i class="fas fa-times"></i></button>
+        <div class="modal-title" id="benModalTitle">Add Beneficiary</div>
+        <input type="hidden" id="benEditId" value="">
+        <div class="grid-2" style="gap:12px;">
+            <div class="form-group"><label class="form-label">ID Number</label><input type="text" id="benId" class="form-control"></div>
+            <div class="form-group"><label class="form-label">Full Name</label><input type="text" id="benName" class="form-control"></div>
+            <div class="form-group"><label class="form-label">Nationality</label><input type="text" id="benNat" class="form-control" placeholder="Tanzanian"></div>
+            <div class="form-group"><label class="form-label">Age</label><input type="number" id="benAge" class="form-control"></div>
+            <div class="form-group"><label class="form-label">Phone</label><input type="tel" id="benPhone" class="form-control" placeholder="+255..."></div>
+            <div class="form-group"><label class="form-label">Location</label><input type="text" id="benLoc" class="form-control"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Items Received</label><textarea id="benItems" class="form-control" rows="2" placeholder="Maize, Beans, Oil..."></textarea></div>
+        <button class="btn btn-primary btn-block" id="saveBenBtn" onclick="saveBeneficiary()"><span class="btn-text">Save</span><span class="spinner"></span></button>
+    </div>
+</div>
+
+<!-- Amount Received Modal -->
+<div id="amountModal" class="modal-overlay" onclick="if(event.target===this)closeModal('amountModal')">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('amountModal')"><i class="fas fa-times"></i></button>
+        <div class="modal-title">Record Amount Received</div>
+        <div class="form-group"><label class="form-label">Date</label><input type="date" id="amtDate" class="form-control" onchange="autoFillDay('amtDate','amtDay')"></div>
+        <div class="form-group"><label class="form-label">Day</label><input type="text" id="amtDay" class="form-control" readonly placeholder="Auto-filled"></div>
+        <div class="form-group"><label class="form-label">Source / Description</label><input type="text" id="amtSource" class="form-control" placeholder="e.g. Donation from ABC"></div>
+        <div class="form-group"><label class="form-label">Amount (KSH)</label><input type="number" id="amtAmount" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Received By</label><input type="text" id="amtReceivedBy" class="form-control"></div>
+        <button class="btn btn-success btn-block" id="saveAmtBtn" onclick="saveAmount()"><span class="btn-text">Save</span><span class="spinner"></span></button>
+    </div>
+</div>
+
+<!-- Participation Modal -->
+<div id="partModal" class="modal-overlay" onclick="if(event.target===this)closeModal('partModal')">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('partModal')"><i class="fas fa-times"></i></button>
+        <div class="modal-title" id="partModalTitle">Add Participation Record</div>
+        <input type="hidden" id="partEditId" value="">
+        <div class="grid-2" style="gap:12px;">
+            <div class="form-group"><label class="form-label">ID</label><input type="text" id="partId" class="form-control"></div>
+            <div class="form-group"><label class="form-label">Full Name</label><input type="text" id="partName" class="form-control"></div>
+            <div class="form-group"><label class="form-label">Nationality</label><input type="text" id="partNat" class="form-control"></div>
+            <div class="form-group"><label class="form-label">Sex</label><select id="partSex" class="form-control"><option value="">Select</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
+            <div class="form-group"><label class="form-label">Age</label><input type="number" id="partAge" class="form-control"></div>
+            <div class="form-group"><label class="form-label">Location</label><input type="text" id="partLoc" class="form-control"></div>
+            <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" id="partPhone" class="form-control"></div>
+            <div class="form-group"><label class="form-label">Member Active</label><select id="partActive" class="form-control"><option value="Yes">Yes</option><option value="No">No</option></select></div>
+        </div>
+        <div class="form-group"><label class="form-label">Active for Online Meeting</label><select id="partOnline" class="form-control"><option value="Yes">Yes</option><option value="No">No</option></select></div>
+        <button class="btn btn-primary btn-block" id="savePartBtn" onclick="saveParticipation()"><span class="btn-text">Save</span><span class="spinner"></span></button>
+    </div>
+</div>
+
+<!-- Visit Modal -->
+<div id="visitModal" class="modal-overlay" onclick="if(event.target===this)closeModal('visitModal')">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('visitModal')"><i class="fas fa-times"></i></button>
+        <div class="modal-title">Record Member Visit</div>
+        <div class="grid-2" style="gap:12px;">
+            <div class="form-group"><label class="form-label">ID</label><input type="text" id="visitId" class="form-control"></div>
+            <div class="form-group"><label class="form-label">Full Name</label><input type="text" id="visitName" class="form-control"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Purpose of Visit</label><input type="text" id="visitPurpose" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Amount Given (KSH)</label><input type="number" id="visitAmount" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Items Given</label><input type="text" id="visitItems" class="form-control" placeholder="e.g. Food, Clothes"></div>
+        <div class="form-group"><label class="form-label">Next Visit Will Be For</label><input type="text" id="visitNext" class="form-control" placeholder="e.g. Follow-up assessment"></div>
+        <button class="btn btn-primary btn-block" id="saveVisitBtn" onclick="saveVisit()"><span class="btn-text">Save</span><span class="spinner"></span></button>
+    </div>
+</div>
+
+<!-- Ledger Modal -->
+<div id="ledgerModal" class="modal-overlay" onclick="if(event.target===this)closeModal('ledgerModal')">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('ledgerModal')"><i class="fas fa-times"></i></button>
+        <div class="modal-title">Add Ledger Entry</div>
+        <div class="form-group"><label class="form-label">Entry Type</label><select id="ldgType" class="form-control" onchange="toggleLedgerFields()"><option value="in">Amount In</option><option value="out">Amount Out</option><option value="salary">Salary Given</option></select></div>
+        <div class="form-group"><label class="form-label">Date</label><input type="date" id="ldgDate" class="form-control" onchange="autoFillDay('ldgDate','ldgDay')"></div>
+        <div class="grid-2" style="gap:12px;">
+            <div class="form-group"><label class="form-label">Day</label><input type="text" id="ldgDay" class="form-control" readonly placeholder="Auto"></div>
+            <div class="form-group"><label class="form-label">Time</label><input type="time" id="ldgTime" class="form-control"></div>
+        </div>
+        <div class="form-group" id="ldgDescGroup"><label class="form-label" id="ldgDescLabel">Description</label><input type="text" id="ldgDesc" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Amount (KSH)</label><input type="number" id="ldgAmount" class="form-control"></div>
+        <button class="btn btn-primary btn-block" id="saveLdgBtn" onclick="saveLedger()"><span class="btn-text">Save Entry</span><span class="spinner"></span></button>
+    </div>
+</div>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+// ★ PASTE YOUR GOOGLE APPS SCRIPT URL HERE ★
+const API_URL = 'https://script.google.com/macros/s/AKfycbwrR65Ijni3fBt6rBY6JPDmVm2oEc7CcbuVjyu1q_LcFh3SOoSjId9jgVxFJHIkraIJ0Q/exec';
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+let currentUser = null;
+let cachedReports=[], cachedFinances=[], cachedBeneficiaries=[], cachedUsers=[];
+let cachedAmounts=[], cachedParticipation=[], cachedVisits=[], cachedLedger=[];
+let mainChart = null;
+let currentLedgerTab = 'in';
+
+// ===== HELPERS =====
+function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtKSH(n){ return 'KSH ' + Number(n||0).toLocaleString(); }
+function autoFillDay(dateId, dayId){
+    const v = document.getElementById(dateId).value;
+    if(v){ const d = new Date(v+'T00:00:00'); document.getElementById(dayId).value = DAYS[d.getDay()]; }
+    else { document.getElementById(dayId).value = ''; }
+}
+
+function toast(msg, type=''){
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast ' + type;
+    setTimeout(()=> t.classList.add('show'), 10);
+    setTimeout(()=> t.classList.remove('show'), 3000);
+}
+function showAlert(title, msg){
+    document.getElementById('alertTitle').textContent = title;
+    document.getElementById('alertMsg').textContent = msg;
+    document.getElementById('alertOverlay').classList.add('show');
+}
+function closeAlert(){ document.getElementById('alertOverlay').classList.remove('show'); }
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+function setLoading(btnId, loading){ const b=document.getElementById(btnId); if(!b)return; if(loading)b.classList.add('loading'); else b.classList.remove('loading'); }
+
+// ===== API =====
+async function apiCall(action, data={}){
+    try{
+        const resp = await fetch(API_URL, {
+            method:'POST',
+            headers:{'Content-Type':'text/plain;charset=utf-8'},
+            body: JSON.stringify({action,...data})
+        });
+        return await resp.json();
+    }catch(err){
+        console.error('API Error:', err);
+        toast('Network error. Check connection.','error');
+        return {success:false, error:'Network error'};
+    }
+}
+
+// ===== AUTH =====
+function switchTab(tab){
+    document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+    document.getElementById('tabSignup').classList.toggle('active', tab==='signup');
+    document.getElementById('loginForm').classList.toggle('hidden', tab!=='login');
+    document.getElementById('signupForm').classList.toggle('hidden', tab!=='signup');
+}
+
+async function handleLogin(e){
+    e.preventDefault();
+    const email=document.getElementById('loginEmail').value.trim();
+    const pass=document.getElementById('loginPass').value;
+    const errEl=document.getElementById('loginError');
+    if(!email||!pass){errEl.textContent='Fill all fields';errEl.style.display='block';return;}
+    errEl.style.display='none';
+    setLoading('loginBtn',true);
+    const res = await apiCall('login',{email,password:pass});
+    setLoading('loginBtn',false);
+    if(res.success){ currentUser=res.user; sessionStorage.setItem('muungano_user',JSON.stringify(res.user)); enterApp(); }
+    else{ errEl.textContent=res.error||'Invalid credentials'; errEl.style.display='block'; }
+}
+
+async function handleSignup(e){
+    e.preventDefault();
+    const name=document.getElementById('signupName').value.trim();
+    const email=document.getElementById('signupEmail').value.trim();
+    const pass=document.getElementById('signupPass').value;
+    const role=document.getElementById('signupRole').value;
+    const errEl=document.getElementById('signupError');
+    if(!name||!email||!pass||!role){errEl.textContent='Fill all fields';errEl.style.display='block';return;}
+    errEl.style.display='none';
+    setLoading('signupBtn',true);
+    const res = await apiCall('signup',{name,email,password:pass,role});
+    setLoading('signupBtn',false);
+    if(res.success){ toast('Account created! Please login.','success'); switchTab('login'); document.getElementById('signupForm').reset(); }
+    else{ errEl.textContent=res.error||'Signup failed'; errEl.style.display='block'; }
+}
+
+// ★ FIXED LOGOUT — no more white screen ★
+function handleLogout(){
+    sessionStorage.removeItem('muungano_user');
+    currentUser = null;
+    cachedReports=[]; cachedFinances=[]; cachedBeneficiaries=[]; cachedUsers=[];
+    cachedAmounts=[]; cachedParticipation=[]; cachedVisits=[]; cachedLedger=[];
+    if(mainChart){ mainChart.destroy(); mainChart=null; }
+    // Close sidebar
+    const sb=document.getElementById('sidebar'); sb.classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('show');
+    // Switch views directly — no reload needed
+    document.getElementById('appView').classList.add('hidden');
+    document.getElementById('authView').classList.remove('hidden');
+    // Clear form
+    document.getElementById('loginEmail').value='';
+    document.getElementById('loginPass').value='';
+    document.getElementById('loginError').style.display='none';
+}
+
+// ===== NAVIGATION =====
+function showSection(name){
+    document.querySelectorAll('[data-section]').forEach(el=> el.classList.toggle('active', el.dataset.section===name));
+    document.querySelectorAll('main > section').forEach(el=> el.classList.add('hidden'));
+    const sec=document.getElementById('sec-'+name);
+    if(sec) sec.classList.remove('hidden');
+    if(window.innerWidth<768) toggleSidebar(false);
+    // Refresh data
+    if(name==='dashboard') refreshDashboard();
+    if(name==='reports') refreshReports();
+    if(name==='finance') refreshFinances();
+    if(name==='beneficiaries') refreshBeneficiaries();
+    if(name==='admin') refreshUsers();
+    if(name==='amounts') refreshAmounts();
+    if(name==='participation') refreshParticipation();
+    if(name==='visits') refreshVisits();
+    if(name==='ledger') refreshLedger();
+}
+
+document.addEventListener('click',(e)=>{
+    const navItem=e.target.closest('[data-section]');
+    if(navItem) showSection(navItem.dataset.section);
+});
+
+function toggleSidebar(forceState){
+    const sb=document.getElementById('sidebar');
+    const ov=document.getElementById('sidebarOverlay');
+    const isOpen=sb.classList.contains('open');
+    const shouldOpen=forceState!==undefined?forceState:!isOpen;
+    sb.classList.toggle('open',shouldOpen);
+    ov.classList.toggle('show',shouldOpen);
+}
+
+// ===== ENTER APP =====
+function enterApp(){
+    document.getElementById('authView').classList.add('hidden');
+    document.getElementById('appView').classList.remove('hidden');
+    document.getElementById('dispName').textContent=currentUser.name;
+    document.getElementById('dispRole').textContent=currentUser.role;
+
+    const isCEO = currentUser.role==='CEO';
+    const isFinance = currentUser.role==='Finance Officer';
+    const isSecretary = currentUser.role==='Secretary';
+
+    document.querySelectorAll('.admin-only').forEach(el=> el.style.display=isCEO?'':'none');
+    document.querySelectorAll('.finance-only').forEach(el=> el.style.display=(isFinance||isCEO)?'':'none');
+    document.querySelectorAll('.secretary-only').forEach(el=> el.style.display=(isSecretary||isCEO)?'':'none');
+
+    showSection('dashboard');
+}
+
+// Auto-login
+(function(){
+    const saved=sessionStorage.getItem('muungano_user');
+    if(saved){ try{ currentUser=JSON.parse(saved); enterApp(); }catch(e){ sessionStorage.removeItem('muungano_user'); } }
+})();
+
+// ===== DASHBOARD =====
+async function refreshDashboard(){
+    const [rptRes,finRes,benRes] = await Promise.all([
+        apiCall('getReports'), apiCall('getFinances'), apiCall('getBeneficiaries')
+    ]);
+    cachedReports = rptRes.success?rptRes.data:[];
+    cachedFinances = finRes.success?finRes.data:[];
+    cachedBeneficiaries = benRes.success?benRes.data:[];
+    const totalIncome = cachedFinances.filter(f=>f.type==='income').reduce((s,f)=>s+Number(f.amount||0),0);
+    const totalExpense = cachedFinances.filter(f=>f.type==='expense').reduce((s,f)=>s+Number(f.amount||0),0);
+    document.getElementById('statReports').textContent=cachedReports.length;
+    document.getElementById('statBeneficiaries').textContent=cachedBeneficiaries.length;
+    document.getElementById('statIncome').textContent='KSH '+totalIncome.toLocaleString();
+    document.getElementById('statExpense').textContent='KSH '+totalExpense.toLocaleString();
+    renderChart();
+}
+
+function renderChart(){
+    const ctx=document.getElementById('mainChart'); if(!ctx) return;
+    const incData=Array(12).fill(0), expData=Array(12).fill(0);
+    cachedFinances.forEach(f=>{
+        const m=parseInt(f.month);
+        if(f.type==='income') incData[m]+=Number(f.amount||0);
+        if(f.type==='expense') expData[m]+=Number(f.amount||0);
+    });
+    if(mainChart) mainChart.destroy();
+    mainChart = new Chart(ctx,{
+        type:'bar',
+        data:{
+            labels:MONTHS,
+            datasets:[
+                {label:'Income (KSH)',data:incData,backgroundColor:'rgba(5,150,105,0.75)',borderRadius:4},
+                {label:'Expenses (KSH)',data:expData,backgroundColor:'rgba(220,38,38,0.75)',borderRadius:4}
+            ]
+        },
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}}}
+    });
+}
+
+// ===== REPORTS =====
+async function refreshReports(){
+    const res=await apiCall('getReports');
+    cachedReports=res.success?res.data:[];
+    renderReportsTable();
+}
+function renderReportsTable(){
+    const tb=document.getElementById('reportsBody');
+    if(!cachedReports.length){ tb.innerHTML='<tr><td colspan="4"><div class="empty-state"><i class="fas fa-file-alt"></i>No reports yet</div></td></tr>'; return; }
+    tb.innerHTML=cachedReports.map(r=>`<tr>
+        <td style="font-weight:600;">${esc(r.title)}</td>
+        <td>${esc(r.author)}</td><td style="white-space:nowrap;">${esc(r.date)}</td>
+        <td class="hide-mobile"><div class="btn-group">
+            <button class="btn btn-sm btn-outline" onclick="showAlert('${esc(r.title)}','${esc(r.content)}')">View</button>
+            ${currentUser&&(currentUser.role==='CEO'||String(r.authorId)===String(currentUser.id))?`<button class="btn btn-sm btn-danger" onclick="deleteReport(${r.id})">Delete</button>`:''}
+        </div></td></tr>`).join('');
+}
+async function saveReport(){
+    const title=document.getElementById('rptTitle').value.trim();
+    const content=document.getElementById('rptContent').value.trim();
+    if(!title){toast('Title is required','error');return;}
+    setLoading('saveRptBtn',true);
+    const res=await apiCall('addReport',{title,content,author:currentUser.name,authorId:currentUser.id,date:new Date().toLocaleDateString()});
+    setLoading('saveRptBtn',false);
+    if(res.success){closeModal('reportModal');document.getElementById('rptTitle').value='';document.getElementById('rptContent').value='';toast('Report saved!','success');refreshReports();refreshDashboard();}
+    else toast(res.error||'Failed','error');
+}
+async function deleteReport(id){
+    if(!confirm('Delete this report?'))return;
+    const res=await apiCall('deleteReport',{id});
+    if(res.success){toast('Deleted','success');refreshReports();refreshDashboard();} else toast(res.error||'Failed','error');
+}
+function exportPDF(){
+    const {jsPDF}=window.jspdf; const doc=new jsPDF();
+    doc.setFontSize(18); doc.text('Muungano Family CBOs - Reports',20,20);
+    let y=35;
+    if(!cachedReports.length){doc.text('No reports available.',20,y);}
+    else{cachedReports.forEach((r,i)=>{
+        if(y>265){doc.addPage();y=20;}
+        doc.setFont(undefined,'bold');doc.text(`${i+1}. ${r.title}`,20,y);y+=7;
+        doc.setFont(undefined,'normal');doc.setTextColor(100);doc.text(`By: ${r.author} | ${r.date}`,25,y);y+=7;
+        doc.setTextColor(50);const lines=doc.splitTextToSize(r.content||'(no content)',165);doc.text(lines,25,y);y+=lines.length*6+8;
+    });}
+    doc.save('Muungano_Reports.pdf');
+}
+
+// ===== FINANCE =====
+async function refreshFinances(){
+    const res=await apiCall('getFinances');
+    cachedFinances=res.success?res.data:[];
+    renderFinances();
+}
+function renderFinances(){
+    const filter=document.getElementById('monthFilter').value;
+    const match=(item)=>filter==='All'||parseInt(item.month)===parseInt(filter);
+    const renderList=(type,elId,color)=>{
+        const el=document.getElementById(elId);
+        const items=cachedFinances.filter(f=>f.type===type&&match(f));
+        if(!items.length){el.innerHTML='<div class="empty-state" style="padding:20px;"><i class="fas fa-inbox"></i>No data</div>';return;}
+        el.innerHTML=items.map(item=>`<div class="finance-item"><div>
+            <div class="finance-item-desc">${esc(item.desc)}</div>
+            <div class="finance-item-meta">${MONTHS[parseInt(item.month)]} · ${esc(item.user||'')}</div>
+        </div><div class="finance-item-amount" style="color:${color}">${fmtKSH(item.amount)}</div></div>`).join('');
+    };
+    renderList('budget','budgetList','var(--dark)');
+    renderList('income','incomeList','var(--success)');
+    renderList('expense','expenseList','var(--danger)');
+}
+async function saveFinance(type){
+    let desc,amt,month;
+    if(type==='budget'){desc=document.getElementById('bgtDesc').value.trim();amt=document.getElementById('bgtAmt').value;month=document.getElementById('bgtMonth').value;closeModal('budgetModal');}
+    else if(type==='income'){desc=document.getElementById('incDesc').value.trim();amt=document.getElementById('incAmt').value;month=document.getElementById('incMonth').value;closeModal('incomeModal');}
+    else{desc=document.getElementById('expDesc').value.trim();amt=document.getElementById('expAmt').value;month=document.getElementById('expMonth').value;closeModal('expenseModal');}
+    if(!desc||!amt){toast('Fill all fields','error');return;}
+    const res=await apiCall('addFinance',{type,desc,amount:amt,month:parseInt(month),date:new Date().toLocaleDateString(),user:currentUser.name});
+    if(res.success){
+        toast('Saved!','success');
+        if(type==='budget'){document.getElementById('bgtDesc').value='';document.getElementById('bgtAmt').value='';}
+        if(type==='income'){document.getElementById('incDesc').value='';document.getElementById('incAmt').value='';}
+        if(type==='expense'){document.getElementById('expDesc').value='';document.getElementById('expAmt').value='';}
+        refreshFinances();refreshDashboard();
+    } else toast(res.error||'Failed','error');
+}
+
+// ===== BENEFICIARIES =====
+async function refreshBeneficiaries(){
+    const res=await apiCall('getBeneficiaries');
+    cachedBeneficiaries=res.success?res.data:[];
+    renderBenTable();
+}
+function renderBenTable(){
+    const tb=document.getElementById('benBody');
+    if(!cachedBeneficiaries.length){tb.innerHTML='<tr><td colspan="8"><div class="empty-state"><i class="fas fa-users"></i>No beneficiaries</div></td></tr>';return;}
+    tb.innerHTML=cachedBeneficiaries.map(b=>`<tr>
+        <td style="white-space:nowrap;">${esc(b.id)}</td><td style="font-weight:600;">${esc(b.name)}</td>
+        <td>${esc(b.nationality)}</td><td>${esc(b.age)}</td>
+        <td class="hide-mobile">${esc(b.phone)}</td><td class="hide-mobile">${esc(b.location)}</td>
+        <td class="hide-mobile">${esc(b.items)}</td>
+        <td><div class="btn-group">
+            <button class="btn btn-sm btn-warning" onclick="openBeneficiaryModal('${esc(b.id)}')">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteBeneficiary('${esc(b.id)}')">Del</button>
+        </div></td></tr>`).join('');
+}
+function openBeneficiaryModal(editId){
+    document.getElementById('benEditId').value=editId||'';
+    document.getElementById('benModalTitle').textContent=editId?'Edit Beneficiary':'Add Beneficiary';
+    if(editId){
+        const b=cachedBeneficiaries.find(x=>String(x.id)===String(editId));
+        if(b){document.getElementById('benId').value=b.id;document.getElementById('benName').value=b.name;document.getElementById('benNat').value=b.nationality;document.getElementById('benAge').value=b.age;document.getElementById('benPhone').value=b.phone;document.getElementById('benLoc').value=b.location;document.getElementById('benItems').value=b.items;}
+    }else{
+        document.getElementById('benId').value='ID-'+Date.now().toString().slice(-6);
+        ['benName','benNat','benAge','benPhone','benLoc','benItems'].forEach(id=>document.getElementById(id).value='');
+    }
+    openModal('benModal');
+}
+async function saveBeneficiary(){
+    const editId=document.getElementById('benEditId').value;
+    const id=document.getElementById('benId').value.trim();
+    const name=document.getElementById('benName').value.trim();
+    if(!id||!name){toast('ID and Name required','error');return;}
+    const data={id,name,nationality:document.getElementById('benNat').value.trim(),age:document.getElementById('benAge').value,phone:document.getElementById('benPhone').value.trim(),location:document.getElementById('benLoc').value.trim(),items:document.getElementById('benItems').value.trim()};
+    setLoading('saveBenBtn',true);
+    let res;
+    if(editId) res=await apiCall('updateBeneficiary',{...data,originalId:editId});
+    else res=await apiCall('addBeneficiary',data);
+    setLoading('saveBenBtn',false);
+    if(res.success){closeModal('benModal');toast(editId?'Updated!':'Added!','success');refreshBeneficiaries();refreshDashboard();}
+    else toast(res.error||'Failed','error');
+}
+async function deleteBeneficiary(id){
+    if(!confirm('Delete this beneficiary?'))return;
+    const res=await apiCall('deleteBeneficiary',{id});
+    if(res.success){toast('Deleted','success');refreshBeneficiaries();refreshDashboard();}else toast(res.error||'Failed','error');
+}
+
+// ===== AMOUNTS RECEIVED =====
+async function refreshAmounts(){
+    const res=await apiCall('getAmounts');
+    cachedAmounts=res.success?res.data:[];
+    renderAmounts();
+}
+function renderAmounts(){
+    const filter=document.getElementById('amountMonthFilter').value;
+    const match=(item)=>filter==='All'||parseInt(item.month)===parseInt(filter);
+    const items=cachedAmounts.filter(match);
+    const tb=document.getElementById('amountsBody');
+    if(!items.length){tb.innerHTML='<tr><td colspan="6"><div class="empty-state"><i class="fas fa-coins"></i>No amounts recorded</div></td></tr>';return;}
+    tb.innerHTML=items.map(a=>`<tr>
+        <td style="white-space:nowrap;">${esc(a.date)}</td><td>${esc(a.day)}</td>
+        <td>${esc(a.source)}</td><td style="color:var(--success);font-weight:800;">${fmtKSH(a.amount)}</td>
+        <td>${esc(a.receivedBy)}</td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteAmount(${a.id})">Del</button></td>
+    </tr>`).join('');
+}
+async function saveAmount(){
+    const date=document.getElementById('amtDate').value;
+    const day=document.getElementById('amtDay').value;
+    const source=document.getElementById('amtSource').value.trim();
+    const amount=document.getElementById('amtAmount').value;
+    const receivedBy=document.getElementById('amtReceivedBy').value.trim();
+    if(!date||!source||!amount){toast('Fill Date, Source and Amount','error');return;}
+    const d=new Date(date+'T00:00:00');
+    const month=d.getMonth();
+    setLoading('saveAmtBtn',true);
+    const res=await apiCall('addAmount',{date,day,source,amount,receivedBy,month,year:d.getFullYear()});
+    setLoading('saveAmtBtn',false);
+    if(res.success){closeModal('amountModal');['amtDate','amtDay','amtSource','amtAmount','amtReceivedBy'].forEach(id=>document.getElementById(id).value='');toast('Saved!','success');refreshAmounts();}
+    else toast(res.error||'Failed','error');
+}
+async function deleteAmount(id){
+    if(!confirm('Delete this record?'))return;
+    const res=await apiCall('deleteAmount',{id});
+    if(res.success){toast('Deleted','success');refreshAmounts();}else toast(res.error||'Failed','error');
+}
+
+// ===== PARTICIPATION LIST =====
+async function refreshParticipation(){
+    const res=await apiCall('getParticipation');
+    cachedParticipation=res.success?res.data:[];
+    renderPartTable();
+}
+function renderPartTable(){
+    const tb=document.getElementById('partBody');
+    if(!cachedParticipation.length){tb.innerHTML='<tr><td colspan="10"><div class="empty-state"><i class="fas fa-clipboard-check"></i>No participation records</div></td></tr>';return;}
+    tb.innerHTML=cachedParticipation.map(p=>`<tr>
+        <td style="white-space:nowrap;">${esc(p.id)}</td>
+        <td>${esc(p.name)}</td><td>${esc(p.nationality)}</td><td>${esc(p.sex)}</td><td>${esc(p.age)}</td>
+        <td class="hide-mobile">${esc(p.location)}</td><td class="hide-mobile">${esc(p.phone)}</td>
+        <td><span class="badge ${p.active==='Yes'?'badge-yes':'badge-no'}">${esc(p.active)}</span></td>
+        <td class="hide-mobile"><span class="badge ${p.onlineActive==='Yes'?'badge-yes':'badge-no'}">${esc(p.onlineActive)}</span></td>
+        <td><div class="btn-group">
+            <button class="btn btn-sm btn-warning" onclick="openParticipationModal('${esc(p.id)}')">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteParticipation('${esc(p.id)}')">Del</button>
+        </div></td></tr>`).join('');
+}
+function openParticipationModal(editId){
+    document.getElementById('partEditId').value=editId||'';
+    document.getElementById('partModalTitle').textContent=editId?'Edit Participation Record':'Add Participation Record';
+    if(editId){
+        const p=cachedParticipation.find(x=>String(x.id)===String(editId));
+        if(p){document.getElementById('partId').value=p.id;document.getElementById('partName').value=p.name;document.getElementById('partNat').value=p.nationality;document.getElementById('partSex').value=p.sex;document.getElementById('partAge').value=p.age;document.getElementById('partLoc').value=p.location;document.getElementById('partPhone').value=p.phone;document.getElementById('partActive').value=p.active;document.getElementById('partOnline').value=p.onlineActive;}
+    }else{
+        document.getElementById('partId').value='P-'+Date.now().toString().slice(-6);
+        ['partName','partNat','partAge','partLoc','partPhone'].forEach(id=>document.getElementById(id).value='');
+        document.getElementById('partSex').value='';document.getElementById('partActive').value='Yes';document.getElementById('partOnline').value='Yes';
+    }
+    openModal('partModal');
+}
+async function saveParticipation(){
+    const editId=document.getElementById('partEditId').value;
+    const id=document.getElementById('partId').value.trim();
+    const name=document.getElementById('partName').value.trim();
+    if(!id||!name){toast('ID and Name required','error');return;}
+    const data={id,name,nationality:document.getElementById('partNat').value.trim(),sex:document.getElementById('partSex').value,age:document.getElementById('partAge').value,location:document.getElementById('partLoc').value.trim(),phone:document.getElementById('partPhone').value.trim(),active:document.getElementById('partActive').value,onlineActive:document.getElementById('partOnline').value};
+    setLoading('savePartBtn',true);
+    let res;
+    if(editId) res=await apiCall('updateParticipation',{...data,originalId:editId});
+    else res=await apiCall('addParticipation',data);
+    setLoading('savePartBtn',false);
+    if(res.success){closeModal('partModal');toast(editId?'Updated!':'Added!','success');refreshParticipation();}
+    else toast(res.error||'Failed','error');
+}
+async function deleteParticipation(id){
+    if(!confirm('Delete this record?'))return;
+    const res=await apiCall('deleteParticipation',{id});
+    if(res.success){toast('Deleted','success');refreshParticipation();}else toast(res.error||'Failed','error');
+}
+
+// ===== MEMBER VISITS =====
+async function refreshVisits(){
+    const res=await apiCall('getVisits');
+    cachedVisits=res.success?res.data:[];
+    renderVisitsTable();
+}
+function renderVisitsTable(){
+    const tb=document.getElementById('visitsBody');
+    if(!cachedVisits.length){tb.innerHTML='<tr><td colspan="7"><div class="empty-state"><i class="fas fa-handshake"></i>No visit records</div></td></tr>';return;}
+    tb.innerHTML=cachedVisits.map(v=>`<tr>
+        <td style="white-space:nowrap;">${esc(v.id)}</td>
+        <td>${esc(v.name)}</td><td>${esc(v.purpose)}</td>
+        <td style="color:var(--success);font-weight:800;">${fmtKSH(v.amount)}</td>
+        <td class="hide-mobile">${esc(v.items)}</td><td class="hide-mobile">${esc(v.nextVisit)}</td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteVisit(${v.id})">Del</button></td>
+    </tr>`).join('');
+}
+async function saveVisit(){
+    const id=document.getElementById('visitId').value.trim();
+    const name=document.getElementById('visitName').value.trim();
+    const purpose=document.getElementById('visitPurpose').value.trim();
+    const amount=document.getElementById('visitAmount').value;
+    if(!id||!name||!purpose){toast('Fill ID, Name and Purpose','error');return;}
+    const data={id,name,purpose,amount,items:document.getElementById('visitItems').value.trim(),nextVisit:document.getElementById('visitNext').value.trim()};
+    setLoading('saveVisitBtn',true);
+    const res=await apiCall('addVisit',data);
+    setLoading('saveVisitBtn',false);
+    if(res.success){closeModal('visitModal');['visitId','visitName','visitPurpose','visitAmount','visitItems','visitNext'].forEach(x=>document.getElementById(x).value='');toast('Saved!','success');refreshVisits();}
+    else toast(res.error||'Failed','error');
+}
+async function deleteVisit(id){
+    if(!confirm('Delete this visit record?'))return;
+    const res=await apiCall('deleteVisit',{id});
+    if(res.success){toast('Deleted','success');refreshVisits();}else toast(res.error||'Failed','error');
+}
+
+// ===== PROJECT LEDGER =====
+function toggleLedgerFields(){
+    const type=document.getElementById('ldgType').value;
+    document.getElementById('ldgDescLabel').textContent=type==='salary'?'Member Name':'Description';
+}
+
+function switchLedgerTab(tab, btn){
+    currentLedgerTab=tab;
+    document.querySelectorAll('.ledger-tab').forEach(t=>t.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    renderLedgerTable();
+}
+
+async function refreshLedger(){
+    const res=await apiCall('getLedger');
+    cachedLedger=res.success?res.data:[];
+    renderLedgerSummary();
+    renderLedgerTable();
+}
+
+function renderLedgerSummary(){
+    const tb=document.getElementById('ledgerSummaryBody');
+    const inByMonth=Array(12).fill(0), outByMonth=Array(12).fill(0), salByMonth=Array(12).fill(0);
+    cachedLedger.forEach(e=>{
+        const m=parseInt(e.month);
+        if(e.type==='in') inByMonth[m]+=Number(e.amount||0);
+        if(e.type==='out') outByMonth[m]+=Number(e.amount||0);
+        if(e.type==='salary') salByMonth[m]+=Number(e.amount||0);
+    });
+    let totalIn=0,totalOut=0,totalSal=0;
+    let rows=MONTHS.map((m,i)=>{
+        const inc=inByMonth[i], out=outByMonth[i], sal=salByMonth[i];
+        const bal=inc-out-sal;
+        totalIn+=inc; totalOut+=out; totalSal+=sal;
+        const balColor=bal>=0?'var(--success)':'var(--danger)';
+        return `<tr><td style="font-weight:800;">${m}</td>
+            <td>${fmtKSH(inc)}</td><td>${fmtKSH(out)}</td><td>${fmtKSH(sal)}</td>
+            <td style="color:${balColor};font-weight:800;">${fmtKSH(bal)}</td></tr>`;
+    }).join('');
+    const totalBal=totalIn-totalOut-totalSal;
+    const totalColor=totalBal>=0?'var(--success)':'var(--danger)';
+    rows+=`<tr><td style="font-weight:900;">TOTAL</td>
+        <td>${fmtKSH(totalIn)}</td><td>${fmtKSH(totalOut)}</td><td>${fmtKSH(totalSal)}</td>
+        <td style="color:${totalColor};font-weight:900;">${fmtKSH(totalBal)}</td></tr>`;
+    tb.innerHTML=rows;
+}
+
+function renderLedgerTable(){
+    const thead=document.getElementById('ledgerThead');
+    const tbody=document.getElementById('ledgerTbody');
+    const items=cachedLedger.filter(e=>e.type===currentLedgerTab);
+    if(currentLedgerTab==='in'){
+        thead.innerHTML='<tr><th>Date</th><th>Day</th><th>Time</th><th>Description</th><th>Amount (KSH)</th><th>Actions</th></tr>';
+    }else if(currentLedgerTab==='out'){
+        thead.innerHTML='<tr><th>Date</th><th>Day</th><th>Time</th><th>Description</th><th>Amount (KSH)</th><th>Actions</th></tr>';
+    }else{
+        thead.innerHTML='<tr><th>Date</th><th>Day</th><th>Time</th><th>Member Name</th><th>Amount (KSH)</th><th>Actions</th></tr>';
+    }
+    if(!items.length){
+        tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><i class="fas fa-inbox"></i>No ${currentLedgerTab} entries</div></td></tr>`;
+        return;
+    }
+    const color = currentLedgerTab==='in'?'var(--success)':currentLedgerTab==='out'?'var(--danger)':'var(--warning)';
+    tbody.innerHTML=items.map(e=>`<tr>
+        <td style="white-space:nowrap;">${esc(e.date)}</td><td>${esc(e.day)}</td><td>${esc(e.time)}</td>
+        <td style="font-weight:600;">${esc(e.description)}</td>
+        <td style="color:${color};font-weight:800;">${fmtKSH(e.amount)}</td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteLedger(${e.id})">Del</button></td>
+    </tr>`).join('');
+}
+
+function openLedgerModal(){
+    document.getElementById('ldgType').value=currentLedgerTab;
+    toggleLedgerFields();
+    document.getElementById('ldgDate').value='';
+    document.getElementById('ldgDay').value='';
+    document.getElementById('ldgTime').value='';
+    document.getElementById('ldgDesc').value='';
+    document.getElementById('ldgAmount').value='';
+    openModal('ledgerModal');
+}
+
+async function saveLedger(){
+    const type=document.getElementById('ldgType').value;
+    const date=document.getElementById('ldgDate').value;
+    const day=document.getElementById('ldgDay').value;
+    const time=document.getElementById('ldgTime').value;
+    const description=document.getElementById('ldgDesc').value.trim();
+    const amount=document.getElementById('ldgAmount').value;
+    if(!date||!description||!amount){toast('Fill Date, Description and Amount','error');return;}
+    const d=new Date(date+'T00:00:00');
+    setLoading('saveLdgBtn',true);
+    const res=await apiCall('addLedger',{type,date,day,time,description,amount,month:d.getMonth(),year:d.getFullYear()});
+    setLoading('saveLdgBtn',false);
+    if(res.success){closeModal('ledgerModal');toast('Entry saved!','success');refreshLedger();}
+    else toast(res.error||'Failed','error');
+}
+async function deleteLedger(id){
+    if(!confirm('Delete this entry?'))return;
+    const res=await apiCall('deleteLedger',{id});
+    if(res.success){toast('Deleted','success');refreshLedger();}else toast(res.error||'Failed','error');
+}
+
+// ===== ADMIN =====
+async function refreshUsers(){
+    if(currentUser?.role!=='CEO')return;
+    const res=await apiCall('getUsers');
+    cachedUsers=res.success?res.data:[];
+    renderUsersTable();
+}
+function renderUsersTable(){
+    const tb=document.getElementById('usersBody');
+    if(!cachedUsers.length){tb.innerHTML='<tr><td colspan="5"><div class="empty-state"><i class="fas fa-user-slash"></i>No users</div></td></tr>';return;}
+    tb.innerHTML=cachedUsers.map(u=>`<tr>
+        <td style="font-weight:600;">${esc(u.name)}</td><td>${esc(u.email)}</td><td>${esc(u.role)}</td>
+        <td><span class="password-cell">${esc(u.pass)}</span></td>
+        <td>${String(u.id)===String(currentUser.id)?'<span style="color:var(--text-light);font-size:.8rem;">You</span>':`<button class="btn btn-sm btn-danger" onclick="deleteUser(${u.id})">Remove</button>`}</td>
+    </tr>`).join('');
+}
+async function deleteUser(id){
+    if(!confirm('Remove this user?'))return;
+    const res=await apiCall('deleteUser',{id});
+    if(res.success){toast('Removed','success');refreshUsers();}else toast(res.error||'Failed','error');
+}
+
+// ===== CALCULATOR =====
+function calcBudget(){
+    const inc=parseFloat(document.getElementById('calcIncome').value)||0;
+    const exp=parseFloat(document.getElementById('calcExpense').value)||0;
+    const bal=inc-exp;
+    const el=document.getElementById('calcResult');
+    el.textContent=`Projected Balance: KSH ${bal.toLocaleString()}`;
+    el.className='calc-result '+(bal>0?'positive':bal<0?'negative':'neutral');
+}
+</script>
+</body>
+</html>
